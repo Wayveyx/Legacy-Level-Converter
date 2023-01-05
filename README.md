@@ -1,6 +1,6 @@
-#Legacy Level Converter
+# Legacy Level Converter
 
-##How do I use it?
+## How do I use it?
 
 **First,** you’ll need [Node.JS](https://nodejs.org/)
 Once that is installed, you will need a command line. On Windows, this is known as the command prompt, and can be launched by typing `cmd` in windows search, or using `Ctrl+R` and using run. For linux users, this is simply Terminal, and can be accessed easily with `Ctrl+Alt+T`.\
@@ -8,7 +8,7 @@ Once that is installed, you will need a command line. On Windows, this is known 
 **Once inside the folder,** you can set up the configuration inside `conf.json` before running `node main.js <levelID>`. If you would like to change settings on the fly, however, there are command line options you may use. Those will be listed below.
 
 
-##What options do I have?
+## What options do I have?
 
 
 As always, there is `--help`. This will list them all for you.
