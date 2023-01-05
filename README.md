@@ -1,5 +1,7 @@
 # Legacy Level Converter
 
+The legacy level converter is a Geometry Dash level converter made for converting levels made in 2.1 to older versions of the game. This converter supports 1.0-1.8. For 1.9, feel free to use zmx's [GD Level Converter](https://github.com/qimiko/gdlevelconverter)
+
 ## How do I use it?
 
 **First,** you’ll need [Node.js](https://nodejs.org/).
