@@ -7,7 +7,8 @@ Once that is installed, you will need a command line. On Windows, this is known 
 
 **Next,** navigate to the folder the converter is in. Once you’re there, Windows users can use the address bar to launch a command line by typing `cmd` in the address bar and pressing `Enter`. Linux users however can use the `cd` command in the terminal to navigate their way to the folder.
 
-**Once inside the folder,** you can set up the configuration inside `conf.json` before running `node main.js <levelID>`. If you would like to change settings on the fly, however, there are command line options you may use. Those will be listed below.
+**Once inside the folder,** you can set up the configuration inside `conf.json` before running `npm install` to install all required dependencies.\
+After this is done, you can run `node main.js <levelID>` to convert a level. If you would like to change settings on the fly, there are command line options you may use. Those will be listed below.
 
 *An example showing the use of syntax. Made using a dry run.*
 ![Example](https://media.discordapp.net/attachments/688499058540675112/1060478381487046699/image.png)
