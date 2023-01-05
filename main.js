@@ -158,6 +158,7 @@ function writeFile(string) {
     if(!argv.file) {
         console.log("Level Converted. Uploading..") 
         new Promise(function(resolve, reject) {
+            if(config.udid == "" || config.udid == undefined) return console.log("Upload Failed! UDID required. Please contact your server administrator.")
             axios.post(`${argv.upload}uploadGJLevel.php`, `udid=${config.udid}&userName=${config.username}&levelID=0&levelName=${parse.name}&levelDesc=${parse.desc}&levelVersion=1&levelLength=3&audioTrack=0&gameVersion=7&levelString=${levelString}&levelReplay=0`, { headers: { 'User-Agent': '' } })
             .then(function (res) {
                 if(res.data == "-1") return console.log("Upload Failed.")
