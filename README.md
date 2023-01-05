@@ -9,6 +9,8 @@ Once that is installed, you will need a command line. On Windows, this is known 
 
 **Once inside the folder,** you can set up the configuration inside `conf.json` before running `node main.js <levelID>`. If you would like to change settings on the fly, however, there are command line options you may use. Those will be listed below.
 
+*An example showing the use of syntax. Made using a dry run.*
+![Example](https://media.discordapp.net/attachments/688499058540675112/1060478381487046699/image.png)
 
 ## What options do I have?
 
