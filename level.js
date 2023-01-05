@@ -49,6 +49,42 @@ class level {
         }
         return parsedStr;
     }
+    static maxObjs(version) {
+        let max;
+        switch(version) {
+            case "1.0":
+                max = 44
+            break;
+            case "1.1":
+                max = 46
+            break;
+            case "1.2":
+                max = 47
+            break;
+            case "1.3":
+                max = 84
+            break;
+            case "1.4":
+                max = 104
+            break;
+            case "1.5":
+                max = 141
+            break;
+            case "1.6":
+                max = 199
+            break;
+            case "1.7":
+                max = 285
+            break;
+            case  "1.8":
+                max = 505
+            break;
+            default:
+                max = 199;
+            break;
+        }
+        return max;
+    }
 }
 
 module.exports = level;

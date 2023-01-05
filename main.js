@@ -5,8 +5,9 @@
  * Made for 1.6 GDPS
  * Credits to zmx for helping me understand the level header.
  */
-require("dotenv").config()
+const config = require("./conf.json")
 const level = require("./level")
+const { objChart } = require("./objCharts")
 const axios = require("axios")
 const fs = require("fs")
 const path = require("path")
@@ -29,20 +30,26 @@ const argv = yargs
 	description: 'Create file, but dont upload level.',
 	type: 'boolean',
 })
+.option('target', {
+    alias: 't',
+    description: 'Change target version.',
+    type: 'string',
+    default: config.target
+})
 .option('url', {
     alias: 'u',
     description: 'Change target download server.',
     type: 'string',
-    default: 'http://www.boomlings.com/database/'
+    default: config.download
 })
 .option('upload', {
     alias: 's',
     description: 'Change target upload server.',
     type: 'string',
-    default: 'http://node.wayvey.xyz/garlicbase/'
+    default: config.upload
 })
 .help()
-.version("0.2.0")
+.version("0.3.0")
 .alias('help', 'h')
 .alias('upload', 'server')
 .argv;
@@ -101,46 +108,13 @@ function parseLevel(string, data, web = false) {
     }
     convObjs()
 }
-let objChart = {
-    1715: 9,
-    1719: 61,
-    1148: 193,
-    1705: 88,
-    1706: 89,
-    1707: 98,
-    1891: 199,
-    1910: 195,
-    1911: 196,
-    1711: 135,
-    1712: 135,
-    1713: 135,
-    1714: 135,
-    915: 104,
-    1903: 40,
-    1890: 198,
-    1889: 191,
-    1891: 199,
-    1903: 40,
-    1142: 164,
-    1140: 162,
-    1141: 163,
-    1143: 165,
-    1144: 166,
-    1145: 167,
-    1146: 168,
-    1147: 169,
-    //Color objects
-    1000: 29,
-    1001: 30,
-    1002: 104,
-    1004: 105
-}
-let illegals = ['14', '31', '34', '37', '38', '42', '43', '44', '55', '63', '64', '79', '100', '102', '108', '109', '112', '142', '189']
+let maxObjs = level.maxObjs(argv.target);
+let illegals = ['14', '31', '34', '37', '38', '42', '43', '44', '55', '63', '64', '79', '100', '102', '108', '109', '112', '142', '189'] //this will probably change lol
 let colorObjs = ['29', '30', '104', '105']
 let acceptedValues = ['1', '2', '3', '4', '5', '6']
 let colValues = ['7', '8', '9', '10', '11', '14']
 let illegalObjs = new Array();
-function convObjs() { //2.1 -> 1.6 object time
+function convObjs() { //2.1 -> legacy object time
     let objects = parse.objects
     let i = 0;
     let newObj = "";
@@ -153,8 +127,8 @@ function convObjs() { //2.1 -> 1.6 object time
                 let colorType = objInfo[23]
                 if(objChart[colorType]) objInfo[1] = objChart[colorType]
             }
-            if(objInfo[1] > 199 && objChart[objInfo[1]] !== undefined) objInfo[1] = objChart[objInfo[1]]
-            if(illegals.indexOf(objInfo[1]) !== -1 || objInfo[1] > 199) illegalObjs.push(objInfo[1]), object = ""; //Remove non 1.6
+            if(objInfo[1] > maxObjs && objChart[objInfo[1]] !== undefined) objInfo[1] = objChart[objInfo[1]]
+            if(illegals.indexOf(objInfo[1]) !== -1 || objInfo[1] > maxObjs) illegalObjs.push(objInfo[1]), object = ""; //Remove bad guys
             if(object.indexOf(",") !== -1) {
                 for (const [key, value] of Object.entries(objInfo)) {
                     if(acceptedValues.includes(key) || (colorObjs.includes(`${objInfo[1]}`) && colValues.includes(key))) {
@@ -164,7 +138,7 @@ function convObjs() { //2.1 -> 1.6 object time
                     }
                 }
                 newObj += ";";
-                tempObj = "";
+                tempObj = ""; //used for debugging
             }
             i++;
             if(i == objects.length) {
@@ -184,20 +158,16 @@ function writeFile(string) {
     if(!argv.file) {
         console.log("Level Converted. Uploading..") 
         new Promise(function(resolve, reject) {
-            axios.post(`${argv.upload}uploadGJLevel.php`, `udid=${process.env.UDID}&userName=${process.env.USERNAME}&levelID=0&levelName=${parse.name}&levelDesc=${parse.desc}&levelVersion=1&levelLength=3&audioTrack=0&gameVersion=7&levelString=${levelString}&levelReplay=0`, { headers: { 'User-Agent': '' } })
+            axios.post(`${argv.upload}uploadGJLevel.php`, `udid=${config.udid}&userName=${config.username}&levelID=0&levelName=${parse.name}&levelDesc=${parse.desc}&levelVersion=1&levelLength=3&audioTrack=0&gameVersion=7&levelString=${levelString}&levelReplay=0`, { headers: { 'User-Agent': '' } })
             .then(function (res) {
                 if(res.data == "-1") return console.log("Upload Failed.")
                 console.log(res.data)
             })
         })
     } else {
-        fs.writeFile(`./${parse.name}-conv.txt`, levelString, 'utf-8', (err) => {
+        fs.writeFile(`./${argv._}.txt`, levelString, 'utf-8', (err) => {
             if(err) console.log("Something went wrong...")
             console.log(`Level converted. Saved as: ${parse.name}-conv`);
         })
     }
 }
-
-
-
-
