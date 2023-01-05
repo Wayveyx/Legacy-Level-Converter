@@ -49,7 +49,7 @@ const argv = yargs
     default: config.upload
 })
 .help()
-.version("0.3.0")
+.version("0.3.1")
 .alias('help', 'h')
 .alias('upload', 'server')
 .argv;
