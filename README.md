@@ -1,5 +1,5 @@
 # Legacy Level Converter
-
+![Node.js](https://github.com/Wayveyx/Legacy-Level-Converter/actions/workflows/node.js.yml/badge.svg)](https://github.com/Wayveyx/Legacy-Level-Converter/actions/workflows/node.js.yml)
 The legacy level converter is a Geometry Dash level converter made for converting levels made in 2.1 to older versions of the game. This converter supports 1.0-1.8. For 1.9, feel free to use zmx's [GD Level Converter](https://github.com/qimiko/gdlevelconverter)
 
 ## How do I use it?
