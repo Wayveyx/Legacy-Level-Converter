@@ -49,41 +49,55 @@ class level {
         }
         return parsedStr;
     }
-    static maxObjs(version) {
+    static perVersion(version) {
         let max;
+        let gameVersion;
         switch(version) {
             case "1.0":
                 max = 44
+                gameVersion = 1
             break;
             case "1.1":
                 max = 46
+                gameVersion = 2
             break;
             case "1.2":
                 max = 47
+                gameVersion = 3
             break;
             case "1.3":
                 max = 84
+                gameVersion = 4
             break;
             case "1.4":
                 max = 104
+                gameVersion = 5
             break;
             case "1.5":
                 max = 141
+                gameVersion = 6
             break;
             case "1.6":
                 max = 199
+                gameVersion = 7
             break;
             case "1.7":
                 max = 285
+                gameVersion = 10
             break;
             case  "1.8":
                 max = 505
+                gameVersion = 18
             break;
             default:
                 max = 199;
+                gameVersion = 7
             break;
         }
-        return max;
+        return {
+            max,
+            gameVersion
+        }
     }
 }
 

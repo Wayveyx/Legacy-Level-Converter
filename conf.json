@@ -2,7 +2,8 @@
     "download": "http://www.boomlings.com/database/",
     "upload": "http://node.wayvey.xyz/garlicbase",
     "target": "1.6",
-    "udid": "",
+    "secret": "Wmfd2893gb7",
+    "udid": "fgzklhjfgdjioagsroivlffaaffvfgfg",
     "username": "Reupload",
 
     "note": " obj chart will be moved here soontm"

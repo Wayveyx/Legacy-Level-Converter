@@ -49,7 +49,7 @@ const argv = yargs
     default: config.upload
 })
 .help()
-.version("0.3.1")
+.version("0.3.2")
 .alias('help', 'h')
 .alias('upload', 'server')
 .argv;
@@ -105,10 +105,14 @@ function parseLevel(string, data, web = false) {
         let levelInfo = level.robArray(string, null, ":", 'req')
         parse.name = levelInfo[2]
         parse.desc = base64.decode(levelInfo[3])
+        parse.length = levelInfo[15]
+        parse.track = levelInfo[12]
+        console.log(`${parse.name} downloaded.`)
     }
     convObjs()
 }
-let maxObjs = level.maxObjs(argv.target);
+let maxObjs = level.perVersion(argv.target).max;
+let gameVersion = level.perVersion(argv.target).gameVersion;
 let illegals = ['14', '31', '34', '37', '38', '42', '43', '44', '55', '63', '64', '79', '100', '102', '108', '109', '112', '142', '189'] //this will probably change lol
 let colorObjs = ['29', '30', '104', '105']
 let acceptedValues = ['1', '2', '3', '4', '5', '6']
@@ -159,7 +163,7 @@ function writeFile(string) {
         console.log("Level Converted. Uploading..") 
         new Promise(function(resolve, reject) {
             if(config.udid == "" || config.udid == undefined) return console.log("Upload Failed! UDID required. Please contact your server administrator.")
-            axios.post(`${argv.upload}uploadGJLevel.php`, `udid=${config.udid}&userName=${config.username}&levelID=0&levelName=${parse.name}&levelDesc=${parse.desc}&levelVersion=1&levelLength=3&audioTrack=0&gameVersion=7&levelString=${levelString}&levelReplay=0`, { headers: { 'User-Agent': '' } })
+            axios.post(`${argv.upload}uploadGJLevel.php`, `udid=${config.udid}&userName=${config.username}&levelID=0&levelName=${parse.name}&levelDesc=${parse.desc}&levelVersion=1&levelLength=${parse.length}&audioTrack=${parse.track}&gameVersion=${gameVersion}&secret=${config.secret}&levelString=${levelString}&levelReplay=0`, { headers: { 'User-Agent': '' } })
             .then(function (res) {
                 if(res.data == "-1") return console.log("Upload Failed.")
                 console.log(res.data)
