@@ -49,7 +49,7 @@ const argv = yargs
     default: config.upload
 })
 .help()
-.version("0.3.2")
+.version("0.4.0")
 .alias('help', 'h')
 .alias('upload', 'server')
 .argv;
@@ -57,7 +57,7 @@ const argv = yargs
 var dl = argv.url;
 var parse;
 var dirPath = path.join(__dirname);
-fs.readdir(dirPath, async function (err, files) {
+fs.readdir(dirPath, async function (err, files) { //Planning on rewriting this
     if(err) throw err;
     let levels = [];
 	for(i = 0; i < files.length; i++) {
@@ -74,6 +74,7 @@ fs.readdir(dirPath, async function (err, files) {
                 if(res.data == "-1") return console.log("Level not found. (" + res.data + ")");
                 else {
                     let levelString = Buffer.from(res.data.split(":")[7], 'base64')
+                    console.log(res.data.split(":")[7])
                     new Promise(function(resolve, reject) {
                         let unencrypted;
                         let levelData;
@@ -85,7 +86,7 @@ fs.readdir(dirPath, async function (err, files) {
                             zlib.unzip(levelString, (err, buffer) => {
                                 if(err) reject(console.error(err));
                                 levelData = buffer.toString()
-                                resolve(parseLevel(res.data, levelData, true))
+                                resolve(parseLevel(res.data, levelData, "web"))
                             })
                         }
                     });
@@ -94,25 +95,50 @@ fs.readdir(dirPath, async function (err, files) {
 	} else if(levels.length > 1) return console.log("Please only provide one level file. Found:\n" + levels.join("\n"))
     else {
         let levelData = fs.readFileSync(levels[0], 'utf-8')
-        parseLevel(argv._, levelData)
+        if(levels[0].indexOf('.gmd')) {
+            levelData = level.gdshare(levelData)
+            parseLevel(argv._, levelData, "gdshare")
+        }
+        else parseLevel(argv._, levelData)
     }
 });
 
-function parseLevel(string, data, web = false) {
-    parse = new level(data)
-    parse.name = data
-    if(web) {
-        let levelInfo = level.robArray(string, null, ":", 'req')
-        parse.name = levelInfo[2]
-        parse.desc = base64.decode(levelInfo[3])
-        parse.length = levelInfo[15]
-        parse.track = levelInfo[12]
-        console.log(`${parse.name} downloaded.`)
+async function parseLevel(string, data, src) { //change to src - v0.4.0
+    let levelInfo;
+    switch(src) {
+        case "web":
+            parse = new level(data)
+            levelInfo = level.robArray(string, null, ":", 'req')
+            parse.name = levelInfo[2]
+            parse.desc = base64.decode(levelInfo[3])
+            parse.length = levelInfo[15]
+            parse.track = levelInfo[12]
+            console.log(`${parse.name} downloaded.`)
+        break;
+        case "gdshare":
+            levelInfo = Buffer.from(data.levelData, 'base64');
+            await new Promise(function(resolve, reject) {
+                zlib.unzip(levelInfo, (err, buffer) => {
+                if(err) reject(console.error(err));
+                levelInfo = buffer.toString()
+                resolve(levelInfo)
+                })
+            })
+            parse = new level(levelInfo)
+            parse.name = data.levelName
+            parse.desc = base64.decode(data.levelDesc)
+            parse.track = data.song
+        break;
+        default:
+            parse = new level(data)
+            parse.name = data;
+        break;
     }
     convObjs()
 }
 let maxObjs = level.perVersion(argv.target).max;
 let gameVersion = level.perVersion(argv.target).gameVersion;
+let songs = level.perVersion(argv.target).songs
 let illegals = ['14', '31', '34', '37', '38', '42', '43', '44', '55', '63', '64', '79', '100', '102', '108', '109', '112', '142', '189'] //this will probably change lol
 let colorObjs = ['29', '30', '104', '105']
 let acceptedValues = ['1', '2', '3', '4', '5', '6']
@@ -120,6 +146,7 @@ let colValues = ['7', '8', '9', '10', '11', '14']
 let illegalObjs = new Array();
 function convObjs() { //2.1 -> legacy object time
     let objects = parse.objects
+    if(parse.track > songs) parse.track = 0; //Stereo Madness for invalid song
     let i = 0;
     let newObj = "";
     new Promise(function(resolve, reject) {
