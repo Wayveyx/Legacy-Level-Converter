@@ -127,6 +127,7 @@ async function parseLevel(string, data, src) { //change to src - v0.4.0
             parse = new level(levelInfo)
             parse.name = data.levelName
             parse.desc = base64.decode(data.levelDesc)
+            parse.length = 0 //GDShare doesn't support this
             parse.track = data.song
         break;
         default:
