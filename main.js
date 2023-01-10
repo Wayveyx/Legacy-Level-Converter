@@ -95,7 +95,7 @@ fs.readdir(dirPath, async function (err, files) { //Planning on rewriting this
 	} else if(levels.length > 1) return console.log("Please only provide one level file. Found:\n" + levels.join("\n"))
     else {
         let levelData = fs.readFileSync(levels[0], 'utf-8')
-        if(levels[0].indexOf('.gmd')) {
+        if(levels[0].split(".")[1] == "gmd") { //Better way to determine file extension
             levelData = level.gdshare(levelData)
             parseLevel(argv._, levelData, "gdshare")
         }

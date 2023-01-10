@@ -15,7 +15,7 @@ class level {
     static gdshare(level) { //GDShare .gmd extension support - v0.4.0
         const { XMLParser } = require("fast-xml-parser");
         let parser = new XMLParser({arrayMode: "strict"});
-        let data = JSON.parse(JSON.stringify(parser.parse(level))) //stupid potential fix for github
+        let data = parser.parse(level)
         let levelInfo = data["d"]["s"] //tempted to key-value pair this
         let levelName = levelInfo[0]
         let levelDesc = levelInfo[1]
