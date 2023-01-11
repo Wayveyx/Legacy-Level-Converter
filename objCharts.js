@@ -68,14 +68,17 @@ let objChart = { //def not robbed from zmx
     1824: 250,
     1826: 252,
     1827: 253,
-    1828: 254,
-    //Color objects
+    1828: 254
+} //It was totally robbed from zmx I lied to you
+let colObjs = {
     1000: 29,
     1001: 30,
     1002: 104,
-    1004: 105
-} //It was totally robbed from zmx I lied to you
+    1004: 105,
+    1: 211 //Col1 support for 1.7-1.8.
+}
 
 module.exports = {
-    objChart
+    objChart,
+    colObjs
 }

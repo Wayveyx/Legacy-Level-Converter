@@ -3,11 +3,11 @@
  * Development started: 8/29/22 at 8:38 PM CST
  * 2.1 to Legacy level converter
  * Made for 1.6 GDPS
- * Credits to zmx for helping me understand the level header.
+ * Credits to zmx for helping me understand the level header, and for providing objCharts conversions.
  */
 const config = require("./conf.json")
 const level = require("./level")
-const { objChart } = require("./objCharts")
+const { objChart, colObjs } = require("./objCharts")
 const axios = require("axios")
 const fs = require("fs")
 const path = require("path")
@@ -17,7 +17,7 @@ const yargs = require("yargs")
 const argv = yargs
 .option('list', {
 	alias: 'l',
-	description: 'List specific details.',
+	description: 'List specific details.', //Does pretty much nothing currently
 	type: 'boolean',
 })
 .option('dry', {
@@ -49,7 +49,7 @@ const argv = yargs
     default: config.upload
 })
 .help()
-.version("0.4.0")
+.version("0.4.1")
 .alias('help', 'h')
 .alias('upload', 'server')
 .argv;
@@ -96,7 +96,7 @@ fs.readdir(dirPath, async function (err, files) { //Planning on rewriting this
     else {
         let levelData = fs.readFileSync(levels[0], 'utf-8')
         if(levels[0].split(".")[1] == "gmd") { //Better way to determine file extension
-            levelData = level.gdshare(levelData)
+            levelData = level.plist(levelData)
             parseLevel(argv._, levelData, "gdshare")
         }
         else parseLevel(argv._, levelData)
@@ -115,8 +115,8 @@ async function parseLevel(string, data, src) { //change to src - v0.4.0
             parse.track = levelInfo[12]
             console.log(`${parse.name} downloaded.`)
         break;
-        case "gdshare":
-            levelInfo = Buffer.from(data.levelData, 'base64');
+        case "gdshare": //Readablility suffers but consistency improves.
+            levelInfo = Buffer.from(data.k4, 'base64');
             await new Promise(function(resolve, reject) {
                 zlib.unzip(levelInfo, (err, buffer) => {
                 if(err) reject(console.error(err));
@@ -125,10 +125,10 @@ async function parseLevel(string, data, src) { //change to src - v0.4.0
                 })
             })
             parse = new level(levelInfo)
-            parse.name = data.levelName
-            parse.desc = base64.decode(data.levelDesc)
+            parse.name = data.k2
+            parse.desc = base64.decode(data.k3)
             parse.length = 0 //GDShare doesn't support this
-            parse.track = data.song
+            parse.track = data.k45
         break;
         default:
             parse = new level(data)
@@ -157,7 +157,7 @@ function convObjs() { //2.1 -> legacy object time
             let tempObj = "";
             if(objInfo[1] === '899') { //Color trigger conversion
                 let colorType = objInfo[23]
-                if(objChart[colorType]) objInfo[1] = objChart[colorType]
+                if(colObjs[colorType]) objInfo[1] = colObjs[colorType]
             }
             if(objInfo[1] > maxObjs && objChart[objInfo[1]] !== undefined) objInfo[1] = objChart[objInfo[1]]
             if(illegals.indexOf(objInfo[1]) !== -1 || objInfo[1] > maxObjs) illegalObjs.push(objInfo[1]), object = ""; //Remove bad guys
@@ -198,7 +198,7 @@ function writeFile(string) {
             })
         })
     } else {
-        fs.writeFile(`./${argv._}.txt`, levelString, 'utf-8', (err) => {
+        fs.writeFile(`./${argv._}-conv.txt`, levelString, 'utf-8', (err) => {
             if(err) console.log("Something went wrong...")
             console.log(`Level converted. Saved as: ${parse.name}-conv`);
         })

@@ -12,21 +12,19 @@ class level {
         let legacyHeader = `kS1,${bg[0]},kS2,${bg[1]},kS3,${bg[2]},kS4,${gr[0]},kS5,${gr[1]},kS6,${gr[2]},kS8,1`
         return legacyHeader;
     }
-    static gdshare(level) { //GDShare .gmd extension support - v0.4.0
-        const { XMLParser } = require("fast-xml-parser");
-        let parser = new XMLParser({arrayMode: "strict"});
-        let data = parser.parse(level)
-        let levelInfo = data["d"]["s"] //tempted to key-value pair this
-        let levelName = levelInfo[0]
-        let levelDesc = levelInfo[1]
-        let song = data["d"]["i"][1]
-        let levelData = levelInfo[2]
-        return {
-            levelData,
-            levelName,
-            levelDesc,
-            song
-         }
+    static plist(file) { //Plist parser
+        const plist = require('plist')
+        file = `<plist>${ //Replace Rob's abbreviations with actual types. Parser doesn't like abbreviations.
+                    file.replace(/d>/g, 'dict>')
+                    .replace(/k>/g, 'key>')
+                    .replace(/s>/g, 'string>')
+                    .replace(/i>/g, 'integer>')
+                    .replace(/<t\/>/g, '<true\/>')
+                    .replace(/<f\/>/g, '<false\/>')
+                }</plist>`
+        let data = plist.parse(file)
+        return data;
+        
     }
     static robArray(str, val, char = ",", type = "object") { //Heavily optimized, still horrible :troll:
         let strArray = str.split(char)
