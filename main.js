@@ -13,6 +13,7 @@ const fs = require("fs")
 const path = require("path")
 const zlib = require("zlib")
 const base64 = require("base-64")
+const isb64 = require("is-base64")
 const yargs = require("yargs")
 const argv = yargs
 .option('list', {
@@ -49,7 +50,7 @@ const argv = yargs
     default: config.upload
 })
 .help()
-.version("0.4.1")
+.version("0.4.2")
 .alias('help', 'h')
 .alias('upload', 'server')
 .argv;
@@ -110,7 +111,7 @@ async function parseLevel(string, data, src) { //change to src - v0.4.0
             parse = new level(data)
             levelInfo = level.robArray(string, null, ":", 'req')
             parse.name = levelInfo[2]
-            parse.desc = base64.decode(levelInfo[3])
+            parse.desc = base64.decode(levelInfo[3], 'base64')
             parse.length = levelInfo[15]
             parse.track = levelInfo[12]
             console.log(`${parse.name} downloaded.`)
@@ -126,7 +127,7 @@ async function parseLevel(string, data, src) { //change to src - v0.4.0
             })
             parse = new level(levelInfo)
             parse.name = data.k2
-            parse.desc = base64.decode(data.k3)
+            parse.desc = base64.decode(data.k3, '')
             parse.length = 0 //GDShare doesn't support this
             parse.track = data.k45
         break;
@@ -191,6 +192,7 @@ function writeFile(string) {
         console.log("Level Converted. Uploading..") 
         new Promise(function(resolve, reject) {
             if(config.udid == "" || config.udid == undefined) return console.log("Upload Failed! UDID required. Please contact your server administrator.")
+            if(isb64(parse.desc)) parse.desc = base64.decode(parse.desc) //Secondary check for gmd files.
             axios.post(`${argv.upload}uploadGJLevel.php`, `udid=${config.udid}&userName=${config.username}&levelID=0&levelName=${parse.name}&levelDesc=${parse.desc}&levelVersion=1&levelLength=${parse.length}&audioTrack=${parse.track}&gameVersion=${gameVersion}&secret=${config.secret}&levelString=${levelString}&levelReplay=0`, { headers: { 'User-Agent': '' } })
             .then(function (res) {
                 if(res.data == "-1") return console.log("Upload Failed.")
@@ -200,7 +202,7 @@ function writeFile(string) {
     } else {
         fs.writeFile(`./${argv._}-conv.txt`, levelString, 'utf-8', (err) => {
             if(err) console.log("Something went wrong...")
-            console.log(`Level converted. Saved as: ${parse.name}-conv`);
+            console.log(`Level converted. Saved as: ${argv._}-conv`);
         })
     }
 }
