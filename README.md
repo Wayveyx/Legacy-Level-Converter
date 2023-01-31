@@ -17,11 +17,11 @@ After this is done, you can run `node main.js <levelID>` to convert a level. If 
 ![Example](https://media.discordapp.net/attachments/688499058540675112/1060478381487046699/image.png)
 
 ## What options do I have?
-  -h, --unlisted          Reupload level as unlisted. \
-  -u, --url               Change target download server. \
-  -s, --upload, --server  Change target upload server. \
-  -h, --help              Show help \
-      --version           Show version number \
+  `-h`, `--unlisted`          Reupload level as unlisted. \
+  `-u`, `--url`               Change target download server. \
+  `-s`, `--upload`, `--server`  Change target upload server. \
+  `-h`, `--help`              Show help \
+      `--version`           Show version number \
 As always, there is `--help`. This will list them all for you.
 
 ![Options](https://media.discordapp.net/attachments/817367076036411402/1060476021889056809/image.png)
