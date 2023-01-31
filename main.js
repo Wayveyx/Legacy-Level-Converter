@@ -15,27 +15,33 @@ const zlib = require("zlib")
 const base64 = require("base-64")
 const isb64 = require("is-base64")
 const yargs = require("yargs")
+const { boolean } = require("yargs")
 const argv = yargs
 .option('list', {
 	alias: 'l',
 	description: 'List specific details.', //Does pretty much nothing currently
-	type: 'boolean',
+	type: 'boolean'
 })
 .option('dry', {
 	alias: 'd',
 	description: 'Don\'t save or upload level.',
-	type: 'boolean',
+	type: 'boolean'
 })
 .option('file', {
 	alias: 'f',
 	description: 'Create file, but dont upload level.',
-	type: 'boolean',
+	type: 'boolean'
 })
 .option('target', {
     alias: 't',
     description: 'Change target version.',
     type: 'string',
     default: config.target
+})
+.option('unlisted', {
+    alias: 'h',
+    description: "Reupload level as unlisted.",
+    type: 'boolean'
 })
 .option('url', {
     alias: 'u',
@@ -50,7 +56,7 @@ const argv = yargs
     default: config.upload
 })
 .help()
-.version("0.4.2")
+.version("0.4.3")
 .alias('help', 'h')
 .alias('upload', 'server')
 .argv;
@@ -70,12 +76,11 @@ fs.readdir(dirPath, async function (err, files) { //Planning on rewriting this
 	}
     if(levels.length < 1) {
 		console.log(`Level file not found. Attempting to download from ${dl}...`);
-        await axios.post(`${dl}downloadGJLevel21.php`, `levelID=${argv._}&gameVersion=21&secret=Wmfd2893gb7`, { headers: { 'User-Agent': '' } })
+        await axios.post(`${dl}downloadGJLevel22.php`, `levelID=${argv._}&gameVersion=21&secret=Wmfd2893gb7`, { headers: { 'User-Agent': '' } })
             .then(function (res) {
                 if(res.data == "-1") return console.log("Level not found. (" + res.data + ")");
                 else {
                     let levelString = Buffer.from(res.data.split(":")[7], 'base64')
-                    console.log(res.data.split(":")[7])
                     new Promise(function(resolve, reject) {
                         let unencrypted;
                         let levelData;
@@ -108,8 +113,9 @@ async function parseLevel(string, data, src) { //change to src - v0.4.0
     let levelInfo;
     switch(src) {
         case "web":
+            //console.log(data)
             parse = new level(data)
-            levelInfo = level.robArray(string, null, ":", 'req')
+            levelInfo = level.robArray(string, ":")
             parse.name = levelInfo[2]
             parse.desc = base64.decode(levelInfo[3], 'base64')
             parse.length = levelInfo[15]
@@ -129,7 +135,7 @@ async function parseLevel(string, data, src) { //change to src - v0.4.0
             parse.name = data.k2
             parse.desc = base64.decode(data.k3, '')
             parse.length = 0 //GDShare doesn't support this
-            parse.track = data.k45
+            parse.track = data.k8 ? data.k8 : 0; //Only supporting 'normal' songs, <3 cyni
         break;
         default:
             parse = new level(data)
@@ -186,14 +192,16 @@ function convObjs() { //2.1 -> legacy object time
     });
 }
 function writeFile(string) {
-    let header = level.header(parse.header)
+    let header = level.header(parse.header, argv.target)
     let levelString = `${header};${string}` 
+    let unlisted  = 0;
     if(!argv.file) {
         console.log("Level Converted. Uploading..") 
         new Promise(function(resolve, reject) {
             if(config.udid == "" || config.udid == undefined) return console.log("Upload Failed! UDID required. Please contact your server administrator.")
+            if(argv.unlisted) unlisted = 1;
             if(isb64(parse.desc)) parse.desc = base64.decode(parse.desc) //Secondary check for gmd files.
-            axios.post(`${argv.upload}uploadGJLevel.php`, `udid=${config.udid}&userName=${config.username}&levelID=0&levelName=${parse.name}&levelDesc=${parse.desc}&levelVersion=1&levelLength=${parse.length}&audioTrack=${parse.track}&gameVersion=${gameVersion}&secret=${config.secret}&levelString=${levelString}&levelReplay=0`, { headers: { 'User-Agent': '' } })
+            axios.post(`${argv.upload}uploadGJLevel.php`, `udid=${config.udid}&userName=${config.username}&levelID=0&levelName=${parse.name}&levelDesc=${parse.desc}&levelVersion=1&levelLength=${parse.length}&audioTrack=${parse.track}&gameVersion=${gameVersion}&secret=${config.secret}&unlisted=${unlisted}&levelString=${levelString}&levelReplay=0`, { headers: { 'User-Agent': '' } })
             .then(function (res) {
                 if(res.data == "-1") return console.log("Upload Failed.")
                 console.log(res.data)

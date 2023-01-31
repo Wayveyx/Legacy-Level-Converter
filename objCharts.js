@@ -75,10 +75,38 @@ let colObjs = {
     1001: 30,
     1002: 104,
     1004: 105,
-    1: 211 //Col1 support for 1.7-1.8.
+    1: 221 //Col1 support for 1.7-1.8.
+}
+let legacyValues = {
+    '1000': { //bg
+        red: 'kS1',
+        green: 'kS2',
+        blue: 'kS3'
+    },
+    '1001': { //gr
+        red: 'kS4',
+        green: 'kS5',
+        blue: 'kS6'
+    },
+    '1002': { //ln
+        red: 'kS7',
+        green: 'kS8',
+        blue: 'kS9'
+    },
+    '1004': { //obj
+        red: 'kS10',
+        green: 'kS11',
+        blue: 'kS12'
+    },
+    '1005': { //col1
+        red: 'kS13',
+        green: 'kS14',
+        blue: 'kS15'
+    }
 }
 
 module.exports = {
     objChart,
-    colObjs
+    colObjs,
+    legacyValues
 }

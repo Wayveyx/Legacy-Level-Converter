@@ -6,10 +6,48 @@ class level {
         this.objects = levelString.split(";").slice(1)
         this.objectCount = this.objects.length;
     }
-    static header(header) {
-        let bg = this.robArray(header, 'bg', ',', 'header')
-        let gr = this.robArray(header, 'gr', ',', 'header')
-        let legacyHeader = `kS1,${bg[0]},kS2,${bg[1]},kS3,${bg[2]},kS4,${gr[0]},kS5,${gr[1]},kS6,${gr[2]},kS8,1`
+    static defineHeader(header) { //Converting the header to a readable object.
+        const { legacyValues } = require('./objCharts')
+        let hObj = this.robArray(header, ',')
+        let hDict = {};
+        if(hObj['kS38']) {
+            let cols = hObj['kS38'].slice(0, hObj['kS38'].length - 1).split('|')
+            Object.keys(cols).forEach(key => {
+                let col = this.robArray(cols[key], '_')
+                if(legacyValues[col['6']]) {
+                    hDict[col['6']] = {
+                        red: col['1'],
+                        green: col['2'],
+                        blue: col['3']
+                    }
+                }
+                i++;
+            }, i)
+        }
+        return hDict;
+    }
+    static header(header, target) {//Building the header
+        /**
+         * BG: kS1-kS3
+         * GR: kS4-kS6
+         * LINE: kS7-kS9
+         * OBJ: kS10-kS12
+         * COL1: kS13-kS15
+         * UNUSED: kS16-kS20
+         */
+        const { legacyValues } = require('./objCharts')
+        let legacyHeader = "";
+        let hDict = this.defineHeader(header)
+        let kA = header.split(',').slice(2)
+        let i = 0, x = 0;
+        Object.keys(hDict).forEach(key => {
+            Object.keys(hDict[key]).forEach(subkey => {
+                legacyHeader += `${legacyValues[key][subkey]},${hDict[key][subkey]},` //lol this is odd
+                x++;
+            })
+            i++;    
+        })
+        legacyHeader += kA;
         return legacyHeader;
     }
     static plist(file) { //Plist parser
@@ -26,47 +64,19 @@ class level {
         return data;
         
     }
-    static robArray(str, val, char = ",", type = "object") { //Heavily optimized, still horrible :troll:
+    static robArray(str, char = ",") { //Much better.
+        if(str.length == 0 || str == undefined) return str;
         let strArray = str.split(char)
         let parsedStr = new Object()
-        let colors;
-        let colorArray;
         for(let i = 0; i < strArray.length; i++) { //Converting array to usable object
             if(i == 0 || i % 2 == 0) {//Key value pair
                 parsedStr[strArray[i]] = strArray[i + 1]
             }
         }
-        if(val) {
-            switch(val) { //Header stuff
-                case 'bg':
-                    if(type !== 'header') return "-1";
-                    colors = [parsedStr['kS1'], [parsedStr]['kS2'], parsedStr['kS3']]
-                    if(parsedStr['kS38']) {
-                        colorArray = parsedStr['kS38'].split("|")[0].split("_")
-                        colors = [colorArray[1], colorArray[3], colorArray[5]]
-                    }
-                    return colors;
-                break;
-                case 'gr':
-                    if(type !== 'header') return "-1";
-                    colors = [parsedStr['kS1'], [parsedStr]['kS2'], parsedStr['kS3']]
-                    if(parsedStr['kS38']) {
-                        colorArray = parsedStr['kS38'].split("|")[1].split("_")
-                        colors = [colorArray[1], colorArray[3], colorArray[5]]
-                    }
-                    return colors;
-                break;
-                default:
-                    return parsedStr[val];
-                break;
-            }
-        }
         return parsedStr;
     }
     static perVersion(version) {
-        let max;
-        let gameVersion;
-        let songs;
+        let max, gameVersion, songs;
         switch(version) {
             case "1.0":
                 max = 44
